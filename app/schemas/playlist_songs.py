@@ -4,7 +4,6 @@ from uuid import UUID
 
 class PlaylistSongBase(BaseModel):
     song_id: UUID
-    position: int
 
 class PlaylistSongCreate(PlaylistSongBase):
     pass
@@ -12,6 +11,7 @@ class PlaylistSongCreate(PlaylistSongBase):
 class PlaylistSong(PlaylistSongBase):
     id: UUID
     playlist_id: UUID
+    position: int  # Añadir este campo
     added_at: datetime
 
     class Config:

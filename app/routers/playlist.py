@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app import schemas, database
@@ -16,7 +16,7 @@ def create_playlist(
     return repo.create_playlist(db, playlist, user_id)
 
 # Listar playlists (opcional filtrar por user_id)
-@router.get("/", response_model=list[schemas.Playlist])
+@router.get("/", response_model=list[schemas.PlaylistWithoutSongs])
 def list_playlists(user_id: UUID | None = None, db: Session = Depends(database.get_db)):
     return repo.get_playlists(db, user_id)
 
@@ -25,7 +25,7 @@ def list_playlists(user_id: UUID | None = None, db: Session = Depends(database.g
 def get_playlist(playlist_id: UUID, db: Session = Depends(database.get_db)):
     playlist = repo.get_playlist(db, playlist_id)
     if not playlist:
-        raise HTTPException(status_code=404, detail="Playlist not found")
+        raise HTTPException(status_code=404, detail="Playlist no encontrada")
     return playlist
 
 # Añadir canción
@@ -37,9 +37,10 @@ def add_song(playlist_id: UUID, song: schemas.PlaylistSongCreate, db: Session = 
     return repo.add_song(db, playlist_id, song)
 
 # Eliminar canción
-@router.delete("/songs/{song_id}")
-def remove_song(song_id: UUID, db: Session = Depends(database.get_db)):
-    ok = repo.remove_song(db, song_id)
-    if not ok:
-        raise HTTPException(status_code=404, detail="Song not found in playlist")
-    return {"ok": True}
+@router.delete("/{playlist_id}/songs/{song_id}", status_code=204)
+def remove_song(playlist_id: UUID, song_id: UUID, db: Session = Depends(database.get_db)):
+    success = repo.remove_song(db, playlist_id, song_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Canción no encontrada en la playlist")
+    return {}
+
