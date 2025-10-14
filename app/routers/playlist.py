@@ -44,3 +44,15 @@ def remove_song(playlist_id: UUID, song_id: UUID, db: Session = Depends(database
         raise HTTPException(status_code=404, detail="Canción no encontrada en la playlist")
     return {}
 
+@router.delete("/{playlist_id}", status_code=204)
+def delete_playlist(
+    playlist_id: UUID,
+    user_id: UUID = Header(..., description="ID del usuario"),
+    db: Session = Depends(database.get_db)
+):
+    """Elimina una playlist y todas sus canciones asociadas"""
+    success = repo.delete_playlist(db, playlist_id, user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Playlist no encontrada o no tienes permiso para eliminarla")
+    return {}
+
