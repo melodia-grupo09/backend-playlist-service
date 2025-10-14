@@ -10,7 +10,7 @@ class PlaylistSong(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     playlist_id = Column(UUID(as_uuid=True), ForeignKey("playlists.id", ondelete="CASCADE"), nullable=False)
-    song_id = Column(UUID(as_uuid=True), nullable=False)  # viene del microservicio de canciones
+    song_id = Column(UUID(as_uuid=True), nullable=False)
     position = Column(Integer, nullable=False)
     added_at = Column(DateTime(timezone=True), server_default=func.now())
 
