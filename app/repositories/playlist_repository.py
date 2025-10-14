@@ -43,7 +43,6 @@ def add_song(db: Session, playlist_id: UUID, song: schemas.PlaylistSongCreate):
     return new_song
 
 def remove_song(db: Session, playlist_id: UUID, song_id: UUID):
-    # Cambiar el filtro para buscar por song_id en lugar de id
     song = db.query(models.PlaylistSong).filter(
         models.PlaylistSong.song_id == song_id,
         models.PlaylistSong.playlist_id == playlist_id
@@ -55,7 +54,6 @@ def remove_song(db: Session, playlist_id: UUID, song_id: UUID):
     db.delete(song)
     db.commit()
     
-    # Reordenar las posiciones de las canciones restantes
     remaining_songs = db.query(models.PlaylistSong).filter(
         models.PlaylistSong.playlist_id == playlist_id
     ).order_by(models.PlaylistSong.position).all()
@@ -63,5 +61,21 @@ def remove_song(db: Session, playlist_id: UUID, song_id: UUID):
     for i, remaining_song in enumerate(remaining_songs):
         remaining_song.position = i + 1
     
+    db.commit()
+    return True
+
+def delete_playlist(db: Session, playlist_id: UUID, user_id: UUID):
+    playlist = db.query(models.Playlist).filter(
+        models.Playlist.id == playlist_id,
+        models.Playlist.owner_id == user_id
+    ).first()
+    
+    if not playlist:
+        return False
+    db.query(models.PlaylistSong).filter(
+        models.PlaylistSong.playlist_id == playlist_id
+    ).delete()
+    
+    db.delete(playlist)
     db.commit()
     return True

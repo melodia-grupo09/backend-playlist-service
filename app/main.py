@@ -1,9 +1,8 @@
-# app/main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 
 from app.database import Base, engine
-from app.routers import playlist
+from app.routers import playlist, liked_songs, history
 
 from app.utils.error_handlers import (
     http_exception_handler,
@@ -21,3 +20,5 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 app.include_router(playlist.router) 
+app.include_router(liked_songs.router)
+app.include_router(history.router)
