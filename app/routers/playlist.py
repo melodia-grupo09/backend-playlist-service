@@ -56,3 +56,21 @@ def delete_playlist(
         raise HTTPException(status_code=404, detail="Playlist no encontrada o no tienes permiso para eliminarla")
     return {}
 
+@router.put("/{playlist_id}/songs/reorder", status_code=200)
+def reorder_playlist_songs(
+    playlist_id: UUID,
+    song_positions: list[schemas.PlaylistSongPositionUpdate],
+    db: Session = Depends(database.get_db)
+):
+    """
+    Actualiza las posiciones de canciones en una playlist.
+    Solo enviar las canciones que cambiaron de posición.
+    """
+    success = repo.reorder_playlist_songs(db, playlist_id, song_positions)
+    if not success:
+        raise HTTPException(
+            status_code=404, 
+            detail="Error al reordenar canciones o playlist no encontrada"
+        )
+    return {"message": "Canciones reordenadas correctamente"}
+

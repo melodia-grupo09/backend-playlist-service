@@ -11,8 +11,12 @@ class PlaylistSongCreate(PlaylistSongBase):
 class PlaylistSong(PlaylistSongBase):
     id: UUID
     playlist_id: UUID
-    position: int  # Añadir este campo
+    position: int
     added_at: datetime
 
     class Config:
         orm_mode = True
+
+class PlaylistSongPositionUpdate(BaseModel):
+    song_id: UUID
+    position: int

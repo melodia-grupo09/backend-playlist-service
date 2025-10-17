@@ -76,3 +76,62 @@ def delete_playlist(db: Session, playlist_id: UUID, user_id: str):
     db.delete(playlist)
     db.commit()
     return True
+
+def reorder_playlist_songs(db: Session, playlist_id: UUID, song_positions: list[schemas.PlaylistSongPositionUpdate]):
+    """
+    Reordena canciones en una playlist, desplazando correctamente las demás canciones.
+    """
+    playlist = db.query(models.Playlist).filter(
+        models.Playlist.id == playlist_id
+    ).first()
+    
+    if not playlist:
+        return False
+    
+    try:
+        all_songs = db.query(models.PlaylistSong).filter(
+            models.PlaylistSong.playlist_id == playlist_id
+        ).order_by(models.PlaylistSong.position).all()
+        
+        if not all_songs:
+            return True
+        
+        songs_by_id = {str(song.song_id): song for song in all_songs}
+        
+        for update in song_positions:
+            if str(update.song_id) not in songs_by_id:
+                return False
+            
+            if update.position < 1 or update.position > len(all_songs):
+                return False
+        
+        for update in song_positions:
+            song_to_move = songs_by_id[str(update.song_id)]
+            old_position = song_to_move.position
+            new_position = update.position
+            
+            if old_position == new_position:
+                continue
+                
+            if old_position < new_position:
+
+                for song in all_songs:
+                    if old_position < song.position <= new_position:
+                        song.position -= 1
+                        
+            else: 
+                for song in all_songs:
+                    if new_position <= song.position < old_position:
+                        song.position += 1
+            
+            song_to_move.position = new_position
+            
+            all_songs.sort(key=lambda s: s.position)
+        
+        db.commit()
+        return True
+        
+    except Exception as e:
+        db.rollback()
+        print(f"Error al reordenar canciones: {e}")
+        return False
