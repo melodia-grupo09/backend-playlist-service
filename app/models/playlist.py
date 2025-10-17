@@ -11,7 +11,7 @@ class Playlist(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     name = Column(String, nullable=False)
     cover_url = Column(String, nullable=True)
-    owner_id = Column(UUID(as_uuid=True), nullable=False)  # viene del gateway
+    owner_id = Column(String, nullable=False, index=True)
     is_public = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 

@@ -13,7 +13,7 @@ class PlaylistCreate(PlaylistBase):
 
 class Playlist(PlaylistBase):
     id: UUID
-    owner_id: UUID
+    owner_id: str
     created_at: datetime
     songs: list[PlaylistSong] = []
 
@@ -22,7 +22,7 @@ class Playlist(PlaylistBase):
 
 class PlaylistWithoutSongs(PlaylistBase):
     id: UUID
-    owner_id: UUID
+    owner_id: str
     created_at: datetime
 
     class Config:

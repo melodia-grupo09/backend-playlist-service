@@ -12,7 +12,7 @@ router = APIRouter(
 
 @router.get("/", response_model=list[schemas.LikedSong])
 def get_liked_songs(
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Obtiene todas las canciones favoritas del usuario"""
@@ -21,7 +21,7 @@ def get_liked_songs(
 @router.post("/", response_model=schemas.LikedSong, status_code=201)
 def add_liked_song(
     song: schemas.LikedSongCreate,
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Añade una canción a favoritos"""
@@ -30,7 +30,7 @@ def add_liked_song(
 @router.delete("/{song_id}", status_code=204)
 def remove_liked_song(
     song_id: UUID,
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Elimina una canción de favoritos"""
@@ -43,7 +43,7 @@ def remove_liked_song(
 @router.put("/reorder", status_code=200)
 def reorder_songs(
     songs: list[schemas.LikedSongPosition],
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Actualiza las posiciones de múltiples canciones favoritas"""

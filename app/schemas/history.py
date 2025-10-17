@@ -10,7 +10,7 @@ class HistoryEntryCreate(HistoryEntryBase):
 
 class HistoryEntry(HistoryEntryBase):
     id: UUID
-    user_id: UUID
+    user_id: str
     position: int  # Añadido campo position
     played_at: datetime
 

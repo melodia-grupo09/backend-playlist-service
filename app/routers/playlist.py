@@ -10,14 +10,14 @@ router = APIRouter(prefix="/playlists", tags=["Playlists"])
 @router.post("/", response_model=schemas.Playlist)
 def create_playlist(
     playlist: schemas.PlaylistCreate,
-    user_id: UUID,  # viene en el request
+    user_id: str,  # viene en el request
     db: Session = Depends(database.get_db)
 ):
     return repo.create_playlist(db, playlist, user_id)
 
 # Listar playlists (opcional filtrar por user_id)
 @router.get("/", response_model=list[schemas.PlaylistWithoutSongs])
-def list_playlists(user_id: UUID | None = None, db: Session = Depends(database.get_db)):
+def list_playlists(user_id: str | None = None, db: Session = Depends(database.get_db)):
     return repo.get_playlists(db, user_id)
 
 # Obtener detalle de playlist
@@ -47,7 +47,7 @@ def remove_song(playlist_id: UUID, song_id: UUID, db: Session = Depends(database
 @router.delete("/{playlist_id}", status_code=204)
 def delete_playlist(
     playlist_id: UUID,
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Elimina una playlist y todas sus canciones asociadas"""

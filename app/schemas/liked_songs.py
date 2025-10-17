@@ -10,7 +10,7 @@ class LikedSongCreate(LikedSongBase):
 
 class LikedSong(LikedSongBase):
     id: UUID
-    user_id: UUID
+    user_id: str
     position: int  # Añadido campo position
     created_at: datetime
 

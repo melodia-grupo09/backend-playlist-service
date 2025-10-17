@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from uuid import UUID
 from app import models, schemas
 
-def create_playlist(db: Session, playlist: schemas.PlaylistCreate, user_id: UUID):
+def create_playlist(db: Session, playlist: schemas.PlaylistCreate, user_id: str):
     new_playlist = models.Playlist(**playlist.dict(), owner_id=user_id)
     db.add(new_playlist)
     db.commit()
@@ -20,17 +20,14 @@ def get_playlist(db: Session, playlist_id: UUID):
     return db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
 
 def add_song(db: Session, playlist_id: UUID, song: schemas.PlaylistSongCreate):
-    # Verificar que existe la playlist
     playlist = get_playlist(db, playlist_id)
     if not playlist:
         return None
-    
-    # Calcular la siguiente posición
+
     max_position = db.query(func.max(models.PlaylistSong.position)).filter(
         models.PlaylistSong.playlist_id == playlist_id
     ).scalar() or 0
     
-    # Crear la nueva canción con posición calculada
     new_song = models.PlaylistSong(
         playlist_id=playlist_id,
         song_id=song.song_id,
@@ -64,7 +61,7 @@ def remove_song(db: Session, playlist_id: UUID, song_id: UUID):
     db.commit()
     return True
 
-def delete_playlist(db: Session, playlist_id: UUID, user_id: UUID):
+def delete_playlist(db: Session, playlist_id: UUID, user_id: str):
     playlist = db.query(models.Playlist).filter(
         models.Playlist.id == playlist_id,
         models.Playlist.owner_id == user_id

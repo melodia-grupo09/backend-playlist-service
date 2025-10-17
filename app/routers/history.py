@@ -11,7 +11,7 @@ router = APIRouter(
 
 @router.get("/", response_model=list[schemas.HistoryEntry])
 def get_history(
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Obtiene el historial de reproducción del usuario"""
@@ -20,7 +20,7 @@ def get_history(
 @router.post("/", response_model=schemas.HistoryEntry, status_code=201)
 def add_to_history(
     entry: schemas.HistoryEntryCreate,
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Añade una entrada al historial de reproducción"""
@@ -28,7 +28,7 @@ def add_to_history(
 
 @router.delete("/", status_code=204)
 def clear_history(
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Borra todo el historial del usuario"""
@@ -40,7 +40,7 @@ def clear_history(
 @router.delete("/{song_id}", status_code=204)
 def remove_from_history(
     song_id: UUID,
-    user_id: UUID = Header(..., description="ID del usuario"),
+    user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):
     """Elimina una canción específica del historial"""
