@@ -31,7 +31,7 @@ def clear_history(db: Session, user_id: str):
     db.commit()
     return result > 0
 
-def remove_history_entry(db: Session, user_id: str, song_id: UUID):
+def remove_history_entry(db: Session, user_id: str, song_id: str):  # Cambiado de UUID a str
     entry = db.query(models.HistoryEntry).filter(
         models.HistoryEntry.user_id == user_id,
         models.HistoryEntry.song_id == song_id
@@ -40,10 +40,12 @@ def remove_history_entry(db: Session, user_id: str, song_id: UUID):
     if not entry:
         return False
     
+    # Guardar posición para reordenar
     deleted_position = entry.position
     
     db.delete(entry)
     
+    # Actualizar posiciones de entradas posteriores
     db.query(models.HistoryEntry).filter(
         models.HistoryEntry.user_id == user_id,
         models.HistoryEntry.position > deleted_position

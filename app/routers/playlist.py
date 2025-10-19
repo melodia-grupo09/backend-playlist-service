@@ -38,7 +38,7 @@ def add_song(playlist_id: UUID, song: schemas.PlaylistSongCreate, db: Session = 
 
 # Eliminar canción
 @router.delete("/{playlist_id}/songs/{song_id}", status_code=204)
-def remove_song(playlist_id: UUID, song_id: UUID, db: Session = Depends(database.get_db)):
+def remove_song(playlist_id: UUID, song_id: str, db: Session = Depends(database.get_db)):
     success = repo.remove_song(db, playlist_id, song_id)
     if not success:
         raise HTTPException(status_code=404, detail="Canción no encontrada en la playlist")

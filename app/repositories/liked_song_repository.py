@@ -27,7 +27,7 @@ def add_liked_song(db: Session, user_id: str, song: schemas.LikedSongCreate):
     db.refresh(new_liked)
     return new_liked
 
-def remove_liked_song(db: Session, user_id: str, song_id: UUID):
+def remove_liked_song(db: Session, user_id: str, song_id: str):  # Cambiado de UUID a str
     liked = db.query(models.LikedSong).filter(
         models.LikedSong.user_id == user_id,
         models.LikedSong.song_id == song_id
@@ -36,11 +36,13 @@ def remove_liked_song(db: Session, user_id: str, song_id: UUID):
     if not liked:
         return False
     
+    # Guardar la posición para reordenar
     deleted_position = liked.position
     
     db.delete(liked)
     db.commit()
     
+    # Reordenar las posiciones de las canciones restantes
     remaining_songs = db.query(models.LikedSong).filter(
         models.LikedSong.user_id == user_id,
         models.LikedSong.position > deleted_position

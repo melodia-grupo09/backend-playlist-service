@@ -39,24 +39,29 @@ def add_song(db: Session, playlist_id: UUID, song: schemas.PlaylistSongCreate):
     db.refresh(new_song)
     return new_song
 
-def remove_song(db: Session, playlist_id: UUID, song_id: UUID):
+def remove_song(db: Session, playlist_id: UUID, song_id: str):
     song = db.query(models.PlaylistSong).filter(
-        models.PlaylistSong.song_id == song_id,
-        models.PlaylistSong.playlist_id == playlist_id
+        models.PlaylistSong.playlist_id == playlist_id,
+        models.PlaylistSong.song_id == song_id
     ).first()
     
     if not song:
         return False
     
+    # Guardar posición para reordenar
+    deleted_position = song.position
+    
     db.delete(song)
     db.commit()
     
+    # Reordenar las posiciones de las canciones restantes
     remaining_songs = db.query(models.PlaylistSong).filter(
-        models.PlaylistSong.playlist_id == playlist_id
-    ).order_by(models.PlaylistSong.position).all()
+        models.PlaylistSong.playlist_id == playlist_id,
+        models.PlaylistSong.position > deleted_position
+    ).all()
     
-    for i, remaining_song in enumerate(remaining_songs):
-        remaining_song.position = i + 1
+    for song in remaining_songs:
+        song.position -= 1
     
     db.commit()
     return True

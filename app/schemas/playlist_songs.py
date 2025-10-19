@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 class PlaylistSongBase(BaseModel):
-    song_id: UUID
+    song_id: str
 
 class PlaylistSongCreate(PlaylistSongBase):
     pass
@@ -18,5 +18,5 @@ class PlaylistSong(PlaylistSongBase):
         orm_mode = True
 
 class PlaylistSongPositionUpdate(BaseModel):
-    song_id: UUID
+    song_id: str
     position: int

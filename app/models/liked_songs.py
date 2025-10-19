@@ -9,6 +9,6 @@ class LikedSong(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(String, nullable=False, index=True)
-    song_id = Column(UUID(as_uuid=True), nullable=False)
+    song_id = Column(String, nullable=False)
     position = Column(Integer, nullable=False)  # Añadido campo position
     created_at = Column(DateTime(timezone=True), server_default=func.now())

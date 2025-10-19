@@ -39,7 +39,7 @@ def clear_history(
 
 @router.delete("/{song_id}", status_code=204)
 def remove_from_history(
-    song_id: UUID,
+    song_id: str,
     user_id: str = Header(..., description="ID del usuario"),
     db: Session = Depends(database.get_db)
 ):

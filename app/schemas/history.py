@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 class HistoryEntryBase(BaseModel):
-    song_id: UUID
+    song_id: str
 
 class HistoryEntryCreate(HistoryEntryBase):
     pass
