@@ -4,6 +4,7 @@ from uuid import UUID
 
 class HistoryEntryBase(BaseModel):
     song_id: str
+    minutos: str | None = None
 
 class HistoryEntryCreate(HistoryEntryBase):
     pass
@@ -11,8 +12,8 @@ class HistoryEntryCreate(HistoryEntryBase):
 class HistoryEntry(HistoryEntryBase):
     id: UUID
     user_id: str
-    position: int  # Añadido campo position
+    position: int
     played_at: datetime
 
-    class Config:
+    class Config:   
         orm_mode = True

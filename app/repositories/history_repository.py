@@ -7,13 +7,13 @@ def add_history_entry(db: Session, user_id: str, entry: schemas.HistoryEntryCrea
     db.query(models.HistoryEntry).filter(
         models.HistoryEntry.user_id == user_id
     ).update({models.HistoryEntry.position: models.HistoryEntry.position + 1})
-    
+
     new_entry = models.HistoryEntry(
         user_id=user_id,
         song_id=entry.song_id,
-        position=1 
+        minutos=entry.minutos,
+        position=1
     )
-    
     db.add(new_entry)
     db.commit()
     db.refresh(new_entry)
