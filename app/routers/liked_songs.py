@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
-from uuid import UUID
-from typing import List
 from app import schemas, database
 from app.repositories import liked_song_repository as repo
 
 router = APIRouter(
     prefix="/liked-songs",
-    tags=["Liked-songs"]
+    tags=["Liked Songs"]
 )
 
 @router.get("/", response_model=list[schemas.LikedSong])
@@ -51,3 +49,14 @@ def reorder_songs(
     if not success:
         raise HTTPException(status_code=404, detail="Error al reordenar canciones")
     return {"message": "Canciones reordenadas correctamente"}
+
+@router.get("/is-liked", response_model=bool)
+def is_song_liked(
+    user_id: str = Header(..., description="ID del usuario"),
+    song_id: str = Header(..., description="ID de la canción"),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Devuelve True si la canción está en los liked_songs del usuario, False si no.
+    """
+    return repo.is_song_liked_by_user(db, user_id, song_id)

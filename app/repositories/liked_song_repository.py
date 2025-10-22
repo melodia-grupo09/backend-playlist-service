@@ -113,3 +113,12 @@ def reorder_songs(db: Session, user_id: str, song_positions: list[schemas.LikedS
     except Exception:
         db.rollback()
         return False
+
+def is_song_liked_by_user(db: Session, user_id: str, song_id: str) -> bool:
+    """
+    Devuelve True si la canción está en los liked_songs del usuario, False si no.
+    """
+    return db.query(models.LikedSong).filter(
+        models.LikedSong.user_id == user_id,
+        models.LikedSong.song_id == song_id
+    ).first() is not None
