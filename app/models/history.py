@@ -10,6 +10,8 @@ class HistoryEntry(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(String, nullable=False, index=True)
     song_id = Column(String, nullable=False)
+    song_name = Column(String, nullable=True)
+    artist_name = Column(String, nullable=True)
     minutos = Column(String, nullable=True)
     position = Column(Integer, nullable=False)
     played_at = Column(DateTime(timezone=True), server_default=func.now())

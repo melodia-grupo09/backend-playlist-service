@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Query
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app import schemas, database
@@ -9,13 +9,27 @@ router = APIRouter(
     tags=["History"]
 )
 
-@router.get("/", response_model=list[schemas.HistoryEntry])
+@router.get("/")
 def get_history(
     user_id: str = Header(..., description="ID del usuario"),
+    page: int = Query(1, ge=1, description="Número de página"),
+    limit: int = Query(10, ge=1, le=100, description="Entradas por página"),
+    search: str = Query(None, description="Buscar por nombre de canción"),
+    artist: str = Query(None, description="Filtrar por artista"),
     db: Session = Depends(database.get_db)
 ):
-    """Obtiene el historial de reproducción del usuario"""
-    return repo.get_user_history(db, user_id)
+    """Obtiene el historial de reproducción del usuario con paginación, búsqueda y filtros"""
+    result = repo.get_user_history_paginated(db, user_id, page, limit, search, artist)
+    
+    return {
+        "history": result["entries"],
+        "pagination": {
+            "page": result["page"],
+            "limit": result["limit"],
+            "total": result["total"],
+            "total_pages": result["total_pages"]
+        }
+    }
 
 @router.post("/", response_model=schemas.HistoryEntry, status_code=201)
 def add_to_history(

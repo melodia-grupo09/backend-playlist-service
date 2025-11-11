@@ -4,6 +4,8 @@ from uuid import UUID
 
 class HistoryEntryBase(BaseModel):
     song_id: str
+    song_name: str | None = None
+    artist_name: str | None = None
     minutos: str | None = None
 
 class HistoryEntryCreate(HistoryEntryBase):
