@@ -7,3 +7,7 @@ loguru
 pytest
 httpx
 black
+pytest-cov
+pytest-asyncio
+cloudinary
+python-multipart

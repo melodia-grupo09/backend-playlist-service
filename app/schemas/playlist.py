@@ -18,7 +18,7 @@ class Playlist(PlaylistBase):
     songs: list[PlaylistSong] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PlaylistWithoutSongs(PlaylistBase):
     id: UUID
@@ -26,4 +26,4 @@ class PlaylistWithoutSongs(PlaylistBase):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

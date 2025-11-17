@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from uuid import UUID
 from app import models, schemas
+import math
 
 def create_playlist(db: Session, playlist: schemas.PlaylistCreate, user_id: str):
     new_playlist = models.Playlist(**playlist.dict(), owner_id=user_id)
@@ -140,3 +141,49 @@ def reorder_playlist_songs(db: Session, playlist_id: UUID, song_positions: list[
         db.rollback()
         print(f"Error al reordenar canciones: {e}")
         return False
+
+def search_playlists_paginated(db: Session, search: str = None, page: int = 1, limit: int = 10, user_id: str = None):
+    """
+    Busca playlists por nombre con paginación
+    """
+    query = db.query(models.Playlist)
+    
+    if user_id:
+        query = query.filter(models.Playlist.owner_id == user_id)
+
+    if search:
+        query = query.filter(
+            models.Playlist.name.ilike(f"%{search}%")
+        )
+    
+    total = query.count()
+
+    skip = (page - 1) * limit
+    total_pages = math.ceil(total / limit) if total > 0 else 1
+
+    playlists = query.order_by(models.Playlist.created_at.desc()).offset(skip).limit(limit).all()
+    
+    return {
+        "playlists": playlists,
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "total_pages": total_pages
+    }
+
+def update_playlist_cover(db: Session, playlist_id: UUID, user_id: str, cover_url: str):
+    """
+    Actualiza el cover_url de una playlist
+    """
+    playlist = db.query(models.Playlist).filter(
+        models.Playlist.id == playlist_id,
+        models.Playlist.owner_id == user_id  # Solo el dueño puede actualizar
+    ).first()
+    
+    if not playlist:
+        return None
+    
+    playlist.cover_url = cover_url
+    db.commit()
+    db.refresh(playlist)
+    return playlist
