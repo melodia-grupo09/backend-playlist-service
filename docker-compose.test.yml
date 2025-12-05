@@ -1,0 +1,25 @@
+services:
+  playlist-test:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: playlist-service-test
+    command: pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term-missing -W ignore::DeprecationWarning
+    
+    # Usamos sintaxis de DICCIONARIO para evitar errores de parseo
+    environment:
+      DATABASE_URL: "sqlite:///:memory:"
+      ENVIRONMENT: "testing"
+      # Variables dummy para satisfacer validaciones de entorno
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "db"
+      POSTGRES_HOST: "localhost" # Ponemos localhost para que no busque un host 'db' inexistente
+      POSTGRES_PORT: "5432"
+      # Cloudinary dummy
+      CLOUDINARY_CLOUD_NAME: "dummy"
+      CLOUDINARY_API_KEY: "dummy"
+      CLOUDINARY_API_SECRET: "dummy"
+      
+    volumes:
+      - .:/app

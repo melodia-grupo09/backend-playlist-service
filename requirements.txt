@@ -11,3 +11,4 @@ pytest-cov
 pytest-asyncio
 cloudinary
 python-multipart
+requests

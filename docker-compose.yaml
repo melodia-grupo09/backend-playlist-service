@@ -31,5 +31,22 @@ services:
     volumes:
       - .:/app
 
+  test:
+    build: .
+    depends_on:
+      - db
+    environment:
+      - ENVIRONMENT=test
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=playlist_melodia_test  # Base de datos específica para pruebas
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    volumes:
+      - .:/app
+    command: python -m pytest --cov=app tests/
+    profiles: 
+      - testing
+
 volumes:
   postgres_data:

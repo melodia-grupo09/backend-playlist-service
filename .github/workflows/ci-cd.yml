@@ -1,0 +1,53 @@
+name: CI Pipeline (Playlist Service)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Correr Tests con Docker
+      # Usamos 'run' para forzar la creación de reportes y asegurarnos que falle si baja de 75%
+      - name: Build and Run Tests
+        id: docker_test
+        run: |
+          docker compose -f docker-compose.test.yml run --rm --name playlist_tester \
+          playlist-test pytest --cov=app --cov-report=xml --cov-report=html --cov-fail-under=75
+
+      # 2. Arreglar permisos (Docker crea archivos como root, GitHub no los puede leer a veces)
+      - name: Fix Permissions
+        if: always()
+        run: |
+          sudo chown -R $USER:$USER coverage.xml htmlcov/ || true
+
+      # 3. Subir a Codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+      # 4. Guardar HTML Artifact
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-html
+          path: htmlcov/
+          retention-days: 15
+
+      # 5. Limpieza
+      - name: Teardown
+        if: always()
+        run: docker compose -f docker-compose.test.yml down
+
+  # Aquí iría tu job de deploy o security scan similar al otro microservicio
