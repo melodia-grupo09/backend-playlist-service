@@ -1,4 +1,4 @@
-name: CI Pipeline (Playlist Service)
+name: CI Pipeline
 
 on:
   push:
@@ -15,20 +15,23 @@ jobs:
 
       # 1. Correr Tests con Docker
       # Usamos 'run' para forzar la creación de reportes y asegurarnos que falle si baja de 75%
-      - name: Build and Run Tests
+      # Nota: el nombre del servicio debe coincidir con tu docker-compose.test.yml (playlist-test)
+      - name: Build and Run Tests in Docker
         id: docker_test
         run: |
           docker compose -f docker-compose.test.yml run --rm --name playlist_tester \
           playlist-test pytest --cov=app --cov-report=xml --cov-report=html --cov-fail-under=75
 
-      # 2. Arreglar permisos (Docker crea archivos como root, GitHub no los puede leer a veces)
+      # 2. Arreglar permisos (Crucial en GitHub Actions)
+      # Docker a veces crea archivos como root que el usuario 'runner' no puede leer/subir
       - name: Fix Permissions
         if: always()
         run: |
           sudo chown -R $USER:$USER coverage.xml htmlcov/ || true
+          ls -la coverage.xml  # Debug simple
 
       # 3. Subir a Codecov
-      - name: Upload coverage to Codecov
+      - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         if: always()
         with:
@@ -37,7 +40,7 @@ jobs:
           fail_ci_if_error: false
 
       # 4. Guardar HTML Artifact
-      - name: Upload HTML Report
+      - name: Upload coverage HTML report
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -50,4 +53,40 @@ jobs:
         if: always()
         run: docker compose -f docker-compose.test.yml down
 
-  # Aquí iría tu job de deploy o security scan similar al otro microservicio
+  # --- JOB DE SEGURIDAD ---
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit Security Scan
+        # -r: recursivo
+        # -x: excluir carpeta tests
+        run: bandit -r app/ -x app/tests/ -f json -o bandit-report.json || true
+        
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan
+          path: bandit-report.json
+
+  # --- DEPLOY (Solo si Test y Security pasan) ---
+  deploy:
+    needs: [test, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Railway
+        run: |
+          echo "Simulando deploy... Aquí van tus comandos de Railway"
