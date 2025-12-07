@@ -1,4 +1,4 @@
-from .playlist import Playlist, PlaylistCreate, PlaylistBase, PlaylistWithoutSongs
+from .playlist import Playlist, PlaylistCreate, PlaylistBase, PlaylistWithoutSongs, PlaylistUpdate
 from .playlist_songs import PlaylistSong, PlaylistSongCreate, PlaylistSongBase, PlaylistSongPositionUpdate
 from .liked_songs import LikedSong, LikedSongCreate, LikedSongBase, LikedSongPosition
 from .history import HistoryEntry, HistoryEntryCreate, HistoryEntryBase
@@ -18,5 +18,6 @@ __all__ = [
     "LikedSongPosition",
     "HistoryEntry",
     "HistoryEntryCreate",
-    "HistoryEntryBase"
+    "HistoryEntryBase",
+    "PlaylistUpdate",
 ]

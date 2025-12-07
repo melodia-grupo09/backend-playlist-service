@@ -187,3 +187,25 @@ def update_playlist_cover(db: Session, playlist_id: UUID, user_id: str, cover_ur
     db.commit()
     db.refresh(playlist)
     return playlist
+
+def update_playlist(db: Session, playlist_id: UUID, user_id: str, playlist_update: schemas.PlaylistUpdate):
+    """
+    Actualiza los datos de una playlist (nombre e is_public)
+    """
+    playlist = db.query(models.Playlist).filter(
+        models.Playlist.id == playlist_id,
+        models.Playlist.owner_id == user_id
+    ).first()
+    
+    if not playlist:
+        return None
+    
+    if playlist_update.name is not None:
+        playlist.name = playlist_update.name
+    
+    if playlist_update.is_public is not None:
+        playlist.is_public = playlist_update.is_public
+    
+    db.commit()
+    db.refresh(playlist)
+    return playlist

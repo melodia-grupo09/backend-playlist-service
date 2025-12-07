@@ -11,6 +11,10 @@ class PlaylistBase(BaseModel):
 class PlaylistCreate(PlaylistBase):
     pass
 
+class PlaylistUpdate(BaseModel):
+    name: str | None = None
+    is_public: bool | None = None
+
 class Playlist(PlaylistBase):
     id: UUID
     owner_id: str

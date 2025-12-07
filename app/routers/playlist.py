@@ -145,5 +145,26 @@ def update_playlist_cover(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al actualizar cover: {str(e)}")
 
+@router.patch("/{playlist_id}", response_model=schemas.Playlist)
+def update_playlist(
+    playlist_id: UUID,
+    playlist_update: schemas.PlaylistUpdate,
+    user_id: str = Header(..., description="ID del usuario"),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Actualiza el nombre y/o visibilidad de una playlist.
+    Solo el dueño puede actualizar la playlist.
+    """
+    playlist = repo.update_playlist(db, playlist_id, user_id, playlist_update)
+    
+    if not playlist:
+        raise HTTPException(
+            status_code=404, 
+            detail="Playlist no encontrada o no tienes permiso para modificarla"
+        )
+    
+    return playlist
+
 
 
