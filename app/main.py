@@ -1,6 +1,8 @@
+from app.instrumentation import initialize_datadog
+initialize_datadog()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-
 from app.database import Base, engine
 from app.routers import playlist, liked_songs, history
 
